@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Domain\Identity\Enums\AccountStatus;
+use App\Domain\Identity\Enums\RoleType;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
@@ -29,8 +31,21 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
+            'role' => RoleType::Patient,
+            'status' => AccountStatus::Active,
             'remember_token' => Str::random(10),
         ];
+    }
+
+    /**
+     * Indicate that the user holds a privileged role (provider/staff/admin),
+     * subject to the idle-timeout session policy.
+     */
+    public function role(RoleType $role): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => $role,
+        ]);
     }
 
     /**
